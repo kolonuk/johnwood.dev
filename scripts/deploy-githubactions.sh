@@ -6,8 +6,8 @@ GITHUB_ORG="kolonuk"      # github username, or your org name if part of an org
 WIP_NAME="github"
 BILLING_ACCOUNT=$(gcloud beta billing accounts list --format="value(ACCOUNT_ID)" --filter="OPEN=True" | head -n 1)
 
-gcloud projects create ${PROJECT_ID}
-gcloud beta billing projects link ${PROJECT_ID} --billing-account=${BILLING_ACCOUNT}
+gcloud projects create ${PROJECT_ID} > /dev/null
+gcloud beta billing projects link ${PROJECT_ID} --billing-account=${BILLING_ACCOUNT} > /dev/null
 PROJECT_NUMBER=$(gcloud projects describe ${PROJECT_ID} --format='value(projectNumber)')
 gcloud config set project ${PROJECT_ID}
 
@@ -42,7 +42,7 @@ WIPROVIDER=$(gcloud iam workload-identity-pools providers describe "my-repo" \
 ## Create service account and assign roles
 gcloud iam service-accounts create "${PROJECT_ID}" \
     --description="${PROJECT_ID}_sa" \
-    --project="${PROJECT_ID}"
+    --project="${PROJECT_ID}" > /dev/null
 
 gcloud iam service-accounts add-iam-policy-binding ${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com \
     --role=roles/iam.serviceAccountTokenCreator \
@@ -55,9 +55,14 @@ gcloud iam service-accounts add-iam-policy-binding ${PROJECT_ID}@${PROJECT_ID}.i
     --project=${PROJECT_ID} > /dev/null
 
 # Assign the App Engine Deployer role to the service account
-gcloud projects add-iam-policy-binding ${PROJECT_ID}\
-    --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
-    --role="roles/appengine.deployer" > /dev/null
+# gcloud projects add-iam-policy-binding ${PROJECT_ID}\
+#     --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+#     --role="roles/appengine.deployer" > /dev/null
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/appengine.appAdmin" > /dev/null
+
 
 ## Display secrets required for Github actions
 echo
