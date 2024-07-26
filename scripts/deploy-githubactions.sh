@@ -55,14 +55,21 @@ gcloud iam service-accounts add-iam-policy-binding ${PROJECT_ID}@${PROJECT_ID}.i
     --member="principalSet://iam.googleapis.com/${WIPOOL}/attribute.repository/${REPO_NAME}" \
     --project=${PROJECT_ID} > /dev/null
 
-# Assign the App Engine Deployer role to the service account
-gcloud projects add-iam-policy-binding ${PROJECT_ID}\
-    --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
-    --role="roles/appengine.deployer" > /dev/null
+#gcloud projects add-iam-policy-binding ${PROJECT_ID}\
+#    --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+#    --role="roles/appengine.deployer" > /dev/null
 
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
   --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/appengine.appAdmin" > /dev/null
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/storage.objectViewer" > /dev/null
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/storage.objectCreator" > /dev/null
 
 gcloud app create --region=${REGION} > /dev/null
 
