@@ -8,7 +8,7 @@ env:
   PROJECT_ID: johnwood #YOUR_PROJECT_ID # TODO: update Google Cloud project id
   #GAR_LOCATION: europe-west1 #YOUR_GAR_LOCATION # TODO: update Artifact Registry location
   SERVICE: johnwood #YOUR_SERVICE_NAME # TODO: update Cloud Run service name
-  #REGION: europe-west1 #YOUR_SERVICE_REGION # TODO: update Cloud Run service region
+  REGION: europe-west1 #YOUR_SERVICE_REGION # TODO: update Cloud Run service region
   DEBUG: 'false'
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
 
       - name: Create App Engine Application
         run: |
-          gcloud app create --region=${{ secrets.GCP_APP_ENGINE_REGION }}
+          gcloud app create --region=${{ env.REGION }}
     
       - name: Deploy to App Engine
         if: env.DEBUG == 'false'
