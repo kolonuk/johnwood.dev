@@ -37,7 +37,7 @@ jobs:
         if: env.DEBUG == 'false'
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ env.PROJECT_ID }}
 
       - name: Deploy to App Engine
         if: env.DEBUG == 'false'
