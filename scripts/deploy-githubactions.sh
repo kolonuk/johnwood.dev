@@ -5,6 +5,7 @@ REPO_NAME="kolonuk/johnwood.dev"
 GITHUB_ORG="kolonuk"      # github username, or your org name if part of an org
 WIP_NAME="github"
 BILLING_ACCOUNT=$(gcloud beta billing accounts list --format="value(ACCOUNT_ID)" --filter="OPEN=True" | head -n 1)
+REGION=europe-west1
 
 gcloud projects create ${PROJECT_ID} > /dev/null
 gcloud beta billing projects link ${PROJECT_ID} --billing-account=${BILLING_ACCOUNT} > /dev/null
@@ -17,7 +18,7 @@ echo y|gcloud services enable appengine.googleapis.com
 gcloud iam workload-identity-pools create "${WIP_NAME}" \
   --project="${PROJECT_ID}" \
   --location="global" \
-  --display-name="GitHub Actions Pool"
+  --display-name="GitHub Actions Pool" > /dev/null
 
 WIPOOL=$(gcloud iam workload-identity-pools describe "${WIP_NAME}" \
   --project="${PROJECT_ID}" \
@@ -31,7 +32,7 @@ gcloud iam workload-identity-pools providers create-oidc "my-repo" \
   --display-name="My GitHub repo Provider" \
   --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner" \
   --attribute-condition="assertion.repository_owner == '${GITHUB_ORG}'" \
-  --issuer-uri="https://token.actions.githubusercontent.com"
+  --issuer-uri="https://token.actions.githubusercontent.com" > /dev/null
 
 WIPROVIDER=$(gcloud iam workload-identity-pools providers describe "my-repo" \
   --project="${PROJECT_ID}" \
@@ -55,14 +56,15 @@ gcloud iam service-accounts add-iam-policy-binding ${PROJECT_ID}@${PROJECT_ID}.i
     --project=${PROJECT_ID} > /dev/null
 
 # Assign the App Engine Deployer role to the service account
-# gcloud projects add-iam-policy-binding ${PROJECT_ID}\
-#     --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
-#     --role="roles/appengine.deployer" > /dev/null
+gcloud projects add-iam-policy-binding ${PROJECT_ID}\
+    --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+    --role="roles/appengine.deployer" > /dev/null
 
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
   --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/appengine.appAdmin" > /dev/null
 
+gcloud app create --region=${REGION} > /dev/null
 
 ## Display secrets required for Github actions
 echo
