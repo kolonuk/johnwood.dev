@@ -38,7 +38,12 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-    
+      
+      - name: Remove files from Object Store
+        if: env.DEBUG == 'false'
+        run: |
+          gsutil -m rm -r gs://${{ secrets.GCS_BUCKET_NAME }}/*
+
       - name: Deploy to App Engine
         if: env.DEBUG == 'false'
         run: |
