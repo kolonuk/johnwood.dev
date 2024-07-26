@@ -58,6 +58,8 @@ jobs:
       - name: Deploy
         id: 'deploy'
         uses: 'google-github-actions/deploy-appengine@v2'
+        env:
+          CLOUDSDK_APP_CLOUD_BUILD_TIMEOUT: '5m'
 
       - name: Get URL
         id: 'url'
