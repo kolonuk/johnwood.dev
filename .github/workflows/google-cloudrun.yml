@@ -42,7 +42,7 @@ jobs:
       - name: Deploy to App Engine
         if: env.DEBUG == 'false'
         run: |
-          gcloud app deploy --quiet
+          gcloud app deploy --quiet || { echo "Deployment failed"; gcloud app deploy --verbosity=debug; exit 1; }
 
       - name: Get Deployed URL
         if: env.DEBUG == 'false'

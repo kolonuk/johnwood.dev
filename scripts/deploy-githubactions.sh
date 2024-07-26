@@ -14,6 +14,7 @@ gcloud config set project ${PROJECT_ID}
 
 echo y|gcloud services enable iamcredentials.googleapis.com
 echo y|gcloud services enable appengine.googleapis.com
+echo y|gcloud services enable cloudbuild.googleapis.com
 
 gcloud iam workload-identity-pools create "${WIP_NAME}" \
   --project="${PROJECT_ID}" \
@@ -70,6 +71,10 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
   --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/storage.objectCreator" > /dev/null
+
+gcloud iam service-accounts add-iam-policy-binding ${PROJECT_ID}@appspot.gserviceaccount.com \
+  --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountUser" > /dev/null
 
 gcloud app create --region=${REGION} > /dev/null
 
