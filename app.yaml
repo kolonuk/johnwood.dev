@@ -1,4 +1,4 @@
-runtime: php83
+runtime: php82
 
 handlers:
 - url: /.*
