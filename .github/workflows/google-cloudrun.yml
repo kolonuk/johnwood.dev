@@ -44,10 +44,11 @@ jobs:
         run: |
           echo y|gcloud beta app repair --quiet
 
-      # - name: Deploy to App Engine
-      #   if: env.DEBUG == 'false'
-      #   run: |
-      #     gcloud app deploy --quiet || { echo "Deployment failed"; gcloud app deploy --verbosity=debug; exit 1; }
+      - name: Deploy to App Engine
+        if: env.DEBUG == 'false'
+        run: |
+          CLOUDSDK_APP_CLOUD_BUILD_TIMEOUT=600
+          gcloud app deploy --quiet || { echo "Deployment failed"; gcloud app deploy --verbosity=debug; exit 1; }
 
       # - name: Get Deployed URL
       #   if: env.DEBUG == 'false'
@@ -55,11 +56,11 @@ jobs:
       #     DEPLOYED_URL=$(gcloud app browse --no-launch-browser --format="value(defaultHostname)")
       #     echo "The application has been deployed. You can access it at: https://${DEPLOYED_URL}"
 
-      - name: Deploy
-        id: 'deploy'
-        uses: 'google-github-actions/deploy-appengine@v2'
-        env:
-          CLOUDSDK_APP_CLOUD_BUILD_TIMEOUT: 600
+      # - name: Deploy
+      #   id: 'deploy'
+      #   uses: 'google-github-actions/deploy-appengine@v2'
+      #   env:
+      #     CLOUDSDK_APP_CLOUD_BUILD_TIMEOUT: 600
 
       - name: Get URL
         id: 'url'
