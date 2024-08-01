@@ -66,11 +66,15 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
 
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
   --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --role="roles/storage.objectViewer" > /dev/null
+  --role="roles/storage.objectAdmin" > /dev/null
 
-gcloud projects add-iam-policy-binding ${PROJECT_ID} \
-  --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --role="roles/storage.objectCreator" > /dev/null
+# gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+#   --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+#   --role="roles/storage.objectViewer" > /dev/null
+
+# gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+#   --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+#   --role="roles/storage.objectCreator" > /dev/null
 
 gcloud iam service-accounts add-iam-policy-binding ${PROJECT_ID}@appspot.gserviceaccount.com \
   --member="serviceAccount:${PROJECT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \

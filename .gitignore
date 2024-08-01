@@ -1,0 +1,31 @@
+# Composer dependencies
+/vendor/
+composer.lock
+composer.phar
+
+# Environment variables
+/.env
+
+# Logs
+/logs/
+/*.log
+
+# Temporary files
+/tmp/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# App Engine generated files
+/appengine-generated/
+
+# Google Cloud SDK config
+/.config/gcloud/
+
+# Ignore build artifacts
+/build/
+
+# IDE-specific files
+.vscode/
+.history

@@ -39,15 +39,15 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Repair App
-        if: env.DEBUG == 'false'
-        run: |
-          echo y|gcloud beta app repair --quiet
+      # - name: Repair App
+      #   if: env.DEBUG == 'false'
+      #   run: |
+      #     echo y|gcloud beta app repair --quiet
 
       - name: Deploy to App Engine
         if: env.DEBUG == 'false'
         run: |
-          CLOUDSDK_APP_CLOUD_BUILD_TIMEOUT=600
+          export CLOUDSDK_APP_CLOUD_BUILD_TIMEOUT=600
           gcloud app deploy --quiet || { echo "Deployment failed"; gcloud app deploy --verbosity=debug; exit 1; }
 
       # - name: Get Deployed URL
