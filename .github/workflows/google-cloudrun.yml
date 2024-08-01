@@ -39,6 +39,18 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
+      - name: Display .gcloudignore file
+        if: env.DEBUG == 'false'
+        run: |
+          echo "Contents of .gcloudignore:"
+          cat .gcloudignore
+
+      - name: List project directory
+        if: env.DEBUG == 'false'
+        run: |
+          echo "Listing project directory:"
+          ls -la
+  
       # - name: Repair App
       #   if: env.DEBUG == 'false'
       #   run: |
@@ -48,6 +60,7 @@ jobs:
         if: env.DEBUG == 'false'
         run: |
           export CLOUDSDK_APP_CLOUD_BUILD_TIMEOUT=600
+          export CLOUDSDK_APP_DEPLOY_TIMEOUT=600
           gcloud app deploy --quiet || { echo "Deployment failed"; gcloud app deploy --verbosity=debug; exit 1; }
 
       # - name: Get Deployed URL
