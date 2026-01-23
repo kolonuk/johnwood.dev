@@ -1,0 +1,70 @@
+name: Build and Deploy to Google Cloud
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  PROJECT_ID: johnwood
+  SERVICE: johnwood
+  REGION: europe-west1
+  DEBUG: 'false'
+
+jobs:
+  deploy:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        if: env.DEBUG == 'false'
+        uses: actions/checkout@v4
+
+      - name: Google Auth
+        if: env.DEBUG == 'false'
+        id: auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+          service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+
+      - name: Set up Cloud SDK
+        if: env.DEBUG == 'false'
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Deploy to App Engine
+        id: deploy
+        if: env.DEBUG == 'false'
+        run: |
+          gcloud app deploy --quiet
+
+      - name: Get Deployed URL
+        if: env.DEBUG == 'false'
+        id: get_url
+        run: |
+          URL=$(gcloud app browse --no-launch-browser)
+          echo "deployed_url=${URL}" >> $GITHUB_OUTPUT
+
+      - name: Health Check
+        if: env.DEBUG == 'false'
+        run: |
+          curl -s --fail ${{ steps.get_url.outputs.deployed_url }}
+
+      - name: Verify Domain Mapping
+        if: env.DEBUG == 'false'
+        run: |
+          MAPPING=$(gcloud app domain-mappings describe johnwood.dev --format="value(sslSettings.certificateManagementMode)")
+          if [ "$MAPPING" != "AUTOMATIC" ]; then
+            echo "Domain 'johnwood.dev' is not mapped correctly or does not have automatic SSL."
+            echo "Please follow these steps to configure the custom domain:"
+            echo "1. Verify ownership of 'johnwood.dev' in the Google Cloud Console."
+            echo "2. In the App Engine settings, go to 'Custom Domains' and add 'johnwood.dev'."
+            echo "3. Follow the instructions to update your domain's DNS records."
+            exit 1
+          fi
+          echo "Domain 'johnwood.dev' is mapped correctly with automatic SSL."
