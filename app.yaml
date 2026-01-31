@@ -1,4 +1,5 @@
 runtime: php82
+entrypoint: serve src/index.php
 
 handlers:
 - url: /.*
