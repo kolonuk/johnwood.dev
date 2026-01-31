@@ -6,5 +6,3 @@ use App\Info;
 
 $info = new Info();
 $info->display();
-phpinfo();
-?>
