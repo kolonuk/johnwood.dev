@@ -3,6 +3,10 @@
 composer.lock
 composer.phar
 
+# src: build tooling and backup files, not part of the served site
+/src/node_modules/
+*.bak
+
 # Environment variables
 /.env
 
@@ -17,15 +21,10 @@ composer.phar
 .DS_Store
 Thumbs.db
 
-# App Engine generated files
-/appengine-generated/
-
-# Google Cloud SDK config
-/.config/gcloud/
-
 # Ignore build artifacts
 /build/
 
 # IDE-specific files
 .vscode/
 .history
+.dual-graph/
