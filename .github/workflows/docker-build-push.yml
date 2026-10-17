@@ -67,7 +67,12 @@ jobs:
           # rebuilt against php:8.2-apache, and pinned Debian point versions
           # disappear from the archive on the next base update, which would
           # break the build rather than make it reproducible.
-          ignore: DL3008
+          # DL3005 (no apt-get upgrade): deliberately used — see the comment
+          # on the RUN step in src/Dockerfile. Without it the Trivy image
+          # gate fails on curl CVEs the base tag has not picked up yet.
+          ignore: |
+            DL3008
+            DL3005
 
   trivy-fs:
     name: Scan source for vulnerabilities (Trivy FS)

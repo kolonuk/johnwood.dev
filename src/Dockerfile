@@ -2,7 +2,13 @@ FROM php:8.2-apache
 
 # ctype/iconv ship built into php:apache already; mbstring/xml need libonig/libxml.
 # msmtp is contact-form mail()'s MTA, relaying via Gmail SMTP (see docker-entrypoint.sh).
+# The upgrade is deliberate (hadolint DL3005). php:8.2-apache lags Debian
+# security: at time of writing it ships curl/libcurl 8.14.1-2+deb13u5 while
+# stable-security has u7, and the image Trivy gate fails on the difference.
+# Upgrading here means every rebuild picks up current security patches
+# instead of needing a new base tag for each CVE.
 RUN apt-get update \
+    && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends libonig-dev libxml2-dev msmtp \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install -j "$(nproc)" mbstring xml
