@@ -63,16 +63,8 @@ jobs:
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: src/Dockerfile
-          # DL3008 (pin apt versions): deliberately not pinned. The image is
-          # rebuilt against php:8.2-apache, and pinned Debian point versions
-          # disappear from the archive on the next base update, which would
-          # break the build rather than make it reproducible.
-          # DL3005 (no apt-get upgrade): deliberately used — see the comment
-          # on the RUN step in src/Dockerfile. Without it the Trivy image
-          # gate fails on curl CVEs the base tag has not picked up yet.
-          ignore: |
-            DL3008
-            DL3005
+          # Rule suppressions live next to the code they apply to, as
+          # `hadolint ignore=` comments in src/Dockerfile.
 
   trivy-fs:
     name: Scan source for vulnerabilities (Trivy FS)
