@@ -1,0 +1,213 @@
+{
+  "basics": {
+    "name": "John Wood",
+    "label": "Software Engineer, Kubernetes Engineer & Systems Engineer",
+    "email": "john@kolon.co.uk",
+    "url": "https://johnwood.dev",
+    "location": {
+      "region": "Wiltshire, United Kingdom"
+    },
+    "summary": "I maintain my own server rack at home, providing free website and fileserver hosting for several community groups, including 1244 (Swindon) Squadron Air Training Corps, Wiltshire County Pool and Mazz's Disco. The rack also runs my personal media server and storage, test & development VMs/containers, and a duplicate backup stack. Outside of work I enjoy music (piano and ukulele), taking apart electronics, tinkering with opensource projects, walking, running, cycling, SUP and general outdoor adventures. I also volunteer with two local Air Cadet squadrons, training young people aged 12-20. I actively maintain a Docker image with over 500k pulls on DockerHub.",
+    "profiles": [
+      {
+        "network": "Docker Hub",
+        "username": "kolonuk",
+        "url": "https://hub.docker.com/u/kolonuk"
+      }
+    ]
+  },
+  "work": [
+    {
+      "company": "Nationwide Building Society",
+      "position": "CI/CD Engineer",
+      "startDate": "2024-04-01",
+      "endDate": "Present",
+      "summary": "Nationwide is the largest building society in the UK, requiring stable and usable facilities to help maintain members' financial security.",
+      "highlights": [
+        "Maintain CI/CD pipelines and applications that let developers focus on development and security researchers focus on security",
+        "Work with AWS, Azure, GitHub, Harness, Jenkins, Artifactory, Snyk, Dynatrace, Ansible, Terraform, Python, Go, bash and PowerShell"
+      ]
+    },
+    {
+      "company": "RED Technology Ltd",
+      "position": "Internet Systems Engineer",
+      "startDate": "2022-10-01",
+      "endDate": "2024-04-01",
+      "summary": "Microsoft Gold partner providing e-commerce solution websites with customisation, PCI security, multiple payment gateways and DDoS protection for a number of big brands.",
+      "highlights": [
+        "Maintained hosting, certificates, domains, DNS, routing & failover, monitoring and internal services for customers",
+        "Led the move of internal services (DNS, portals, proxies, relays, monitoring) from a monolithic Windows environment to Linux-based Docker images, paving the way to Kubernetes",
+        "Introduced GitLab source control and CI/CD pipelines for in-house projects",
+        "Implemented NetBox for hardware and networking diagnosis",
+        "Built scripts to automate certificate and domain renewal"
+      ]
+    },
+    {
+      "company": "D2IQ",
+      "position": "Senior Customer Support Engineer",
+      "startDate": "2022-02-01",
+      "endDate": "2022-10-01",
+      "summary": "D2IQ provides an independent Kubernetes platform service across AWS, GCP, Azure, EKS, AKS and on-prem.",
+      "highlights": [
+        "Kept customer HA deployments running smoothly, solving OOM crashes, cluster certificate issues, DNS problems and deployment/pod breakdowns",
+        "Researched KB articles and assisted internal verification of issues and enhancements",
+        "Contributed to user-facing documentation and internal technical processes",
+        "Obtained CKA qualification"
+      ]
+    },
+    {
+      "company": "Openda Ltd",
+      "position": "Senior Developer and Technical Support Specialist",
+      "startDate": "2005-01-01",
+      "endDate": "2022-02-01",
+      "summary": "Openda develops and supports an in-house CRM/ERP business software solution, QX, written entirely in Progress OpenEdge, marketed to SMEs with the slogan \"Simplicity, Clarity, Speed\".",
+      "highlights": [
+        "Worked on API integration, end-customer documentation, bug-fixing and testing, database optimisation and virtualisation",
+        "Handled server and server-room setup and customer site-wide backup strategies",
+        "Provided IT support for networking, servers, desktops, Office 365, phone systems and backups",
+        "Contributed to mobile app development"
+      ]
+    },
+    {
+      "company": "Plymouth Mobile Software Solutions",
+      "position": "Lead Developer / Technical Manager",
+      "startDate": "2001-07-01",
+      "endDate": "2004-06-01",
+      "summary": "Specialised in barcode and handheld solutions for ferry services and water taxis.",
+      "highlights": [
+        "Developed inventory solutions for lot-traceable companies with low-volume products",
+        "Supported existing mobile units, including liaising with repair centres and flashing custom firmware"
+      ]
+    }
+  ],
+  "volunteer": [
+    {
+      "organization": "Air Training Corps (Swindon & Lyneham squadrons)",
+      "position": "Volunteer Instructor",
+      "summary": "Train young people aged 12-20 in Map Reading, Expedition Training, Radio Communications, Principles of Flight, Aircraft Recognition, drill and discipline, with mentoring and support where needed."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Plymouth College of Further Education",
+      "area": "Computing",
+      "studyType": "HND (partial)",
+      "startDate": "2001-06-01",
+      "endDate": "2001-09-01",
+      "courses": ["Data Structures and Algorithms"]
+    },
+    {
+      "institution": "University of Plymouth",
+      "area": "Computing",
+      "studyType": "BSc (partial)",
+      "startDate": "1999-09-01",
+      "endDate": "2001-06-01",
+      "courses": ["Software Engineering", "Mathematical Statistics", "Algorithm Theory", "Computer Architecture and History", "Computer Networks", "Group projects"]
+    },
+    {
+      "institution": "New College, Swindon",
+      "area": "Computing, Maths, Physics",
+      "studyType": "A-Level",
+      "startDate": "1997-09-01",
+      "endDate": "1999-06-01"
+    },
+    {
+      "institution": "Highworth Warneford School",
+      "area": "Computing, English, Maths, Science, Geography, Electronics, Design & Communication, French",
+      "studyType": "GCSE",
+      "startDate": "1993-09-01",
+      "endDate": "1997-06-01"
+    }
+  ],
+  "certificates": [
+    {
+      "name": "Certified Kubernetes Administrator (CKA)",
+      "issuer": "The Linux Foundation / CNCF",
+      "date": "2022"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Containers & Orchestration",
+      "keywords": ["Kubernetes", "Docker", "podman", "OpenVZ", "Rook Ceph", "velero", "CIFS/NFS", "HAProxy/keepalived"]
+    },
+    {
+      "name": "Cloud Platforms",
+      "keywords": ["AWS", "GCP", "Azure"]
+    },
+    {
+      "name": "Operating Systems & Virtualization",
+      "keywords": ["Linux", "FreeBSD", "FreeNAS", "Windows", "MSDos", "VMware ESX/VSAN", "Proxmox", "Xen", "KVM"]
+    },
+    {
+      "name": "Networking & Infrastructure",
+      "keywords": ["AD/GPO", "VoIP/PBX", "Netgear & Cisco networking", "DNS, BIND, PowerDNS", "Certificates/SSL", "SPF, DKIM, DMARC", "I2C, SPI, OBD2, 1-Wire"]
+    },
+    {
+      "name": "Monitoring & Automation",
+      "keywords": ["Prometheus", "Loki", "Grafana", "Zabbix/Nagios", "Ansible", "Packer", "preseed", "Git/GitLab"]
+    },
+    {
+      "name": "Programming & Scripting",
+      "keywords": ["Progress OpenEdge (v9-12)", "Python", "Go", "HTML/CSS/PHP", "JavaScript/TypeScript", "Dart/Flutter", "bash", "PowerShell/VBScript", "Visual Basic 2-6", "Delphi 4-7"]
+    },
+    {
+      "name": "Data & Hardware",
+      "keywords": ["SQLite, MariaDB, MSSQL", "Elasticsearch", "BMC (OpenManage, IPMI, iDRAC, iLO)", "ESP32, Raspberry Pi", "Postscript/PCL, ZPL/EPL"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Kubernetes Migration",
+      "description": "Led configuration of a test cluster as proof-of-concept and developed a process for converting internal custom-built projects into container images, enabling the company to move and manage infrastructure on a HA Kubernetes cluster — a precursor to moving customer hosting off monolithic Windows environments.",
+      "keywords": ["CKA", "Kubernetes", "Docker", "source control"]
+    },
+    {
+      "name": "Raspberry Pi Android Auto",
+      "description": "Installed a Raspberry Pi with touchscreen into a car to run Android Auto for podcasts on long journeys and commutes.",
+      "keywords": ["Electronics", "imaging", "GitHub"]
+    },
+    {
+      "name": "Decode MSF Atomic Clock",
+      "description": "Decoded the NPL's MSF atomic clock radio signal to get accurate date and time for a DIY alarm clock project, disassembling a digital clock to extract the receiver antenna and using Raspberry Pi GPIO to extrapolate the signal.",
+      "url": "https://bitbucket.org/kolon/my-pi-projects/src/master/raspi-clock-radio/acr-atomic.py",
+      "keywords": ["Python", "GPIO"]
+    },
+    {
+      "name": "Dynamic Threading in Python",
+      "description": "Researched Python's threading architecture and wrote code for the alarm clock project that defines dynamic threads, checks whether a thread is running, and launches new threads when one is missing.",
+      "url": "https://bitbucket.org/kolon/my-pi-projects/src/master/raspi-clock-radio/acr.py",
+      "keywords": ["Python"]
+    },
+    {
+      "name": "Magento API Integration",
+      "description": "Worked around Magento's API to export products, attributes, prices and stock quantities, and import orders, payments and carrier tracking information for Openda's QX business system, reporting bugs found in Magento's core code.",
+      "keywords": ["OpenEdge", "PHP", "Postman", "curl", "JSON"]
+    },
+    {
+      "name": "VMware VSAN Private Cloud",
+      "description": "Set up three servers running VMware VSAN for a customer's private cloud environment, including load- and failure-testing, datacentre research, redundant network feeds and DNS changes, before migrating production systems from old hardware.",
+      "keywords": ["VMware ESX", "VMware VSAN", "10Gbit SFP", "VLAN", "DNS", "Linux"]
+    },
+    {
+      "name": "Docker image for get_iplayer",
+      "description": "Actively maintains an auto-updating Docker image with over 100k pulls that makes get_iplayer easy to run with almost no configuration.",
+      "url": "https://hub.docker.com/r/kolonuk/get_iplayer",
+      "keywords": ["bash", "Dockerfile", "Linux", "API"]
+    }
+  ],
+  "interests": [
+    {
+      "name": "Music",
+      "keywords": ["Piano", "Ukulele"]
+    },
+    {
+      "name": "Outdoors",
+      "keywords": ["Walking", "Running", "Cycling", "SUP"]
+    },
+    {
+      "name": "Tinkering",
+      "keywords": ["Electronics", "Home server rack", "Opensource projects", "Restoring antique hardware"]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+---
+import Layout from '../layouts/Layout.astro';
+import resume from '../data/resume.json';
+
+function formatDate(d?: string) {
+  if (!d || d === 'Present') return d ?? '';
+  const [year, month] = d.split('-');
+  const date = new Date(Number(year), Number(month) - 1);
+  return date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+}
+
+const { basics, work, education, skills, certificates } = resume;
+---
+
+<Layout title={`${basics.name} — CV`}>
+  <a class="no-print" href="/" style="display:block; text-align:center; padding:1rem;">← Back to site</a>
+  <main class="cv-page">
+    <h1>{basics.name}</h1>
+    <p class="label">{basics.label}</p>
+    <p>
+      {basics.email} {basics.location?.region ? `· ${basics.location.region}` : ''}
+    </p>
+
+    <h2>Summary</h2>
+    <p>{basics.summary}</p>
+
+    <h2>Experience</h2>
+    {work.map((job) => (
+      <div class="entry">
+        <h3>{job.company} — {job.position}</h3>
+        <span class="dates">{formatDate(job.startDate)} – {formatDate(job.endDate)}</span>
+        <p>{job.summary}</p>
+        <ul>
+          {job.highlights?.map((h: string) => <li>{h}</li>)}
+        </ul>
+      </div>
+    ))}
+
+    <h2>Education</h2>
+    {education.map((ed) => (
+      <div class="entry">
+        <h3>{ed.institution} — {ed.studyType}{ed.area ? `, ${ed.area}` : ''}</h3>
+        <span class="dates">{formatDate(ed.startDate)} – {formatDate(ed.endDate)}</span>
+      </div>
+    ))}
+
+    {certificates && certificates.length > 0 && (
+      <>
+        <h2>Certifications</h2>
+        <ul>
+          {certificates.map((c) => <li>{c.name} — {c.issuer} ({c.date})</li>)}
+        </ul>
+      </>
+    )}
+
+    <h2>Skills</h2>
+    {skills.map((group) => (
+      <p><strong>{group.name}:</strong> {group.keywords.join(', ')}</p>
+    ))}
+  </main>
+</Layout>

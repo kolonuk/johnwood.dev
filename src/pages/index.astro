@@ -1,0 +1,94 @@
+---
+import Layout from '../layouts/Layout.astro';
+import resume from '../data/resume.json';
+
+function formatDate(d?: string) {
+  if (!d || d === 'Present') return d ?? '';
+  const [year, month] = d.split('-');
+  const date = new Date(Number(year), Number(month) - 1);
+  return date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+}
+
+const { basics, work, education, skills, projects } = resume;
+---
+
+<Layout title={`${basics.name} — ${basics.label}`}>
+  <header id="hero">
+    <h1>{basics.name}</h1>
+    <h2>{basics.label}</h2>
+    <a class="btn" href="/resume.pdf">Download CV (PDF)</a>
+  </header>
+
+  <section id="about">
+    <div class="container">
+      <h2 class="heading">About Me</h2>
+      <p class="lede">{basics.summary}</p>
+    </div>
+  </section>
+
+  <section id="experience" class="alt">
+    <div class="container">
+      <h2 class="heading">Experience</h2>
+      {work.map((job) => (
+        <div class="entry">
+          <h3>{job.company}</h3>
+          <h4>{job.position}</h4>
+          <span class="dates">{formatDate(job.startDate)} – {formatDate(job.endDate)}</span>
+          <p>{job.summary}</p>
+          <ul>
+            {job.highlights?.map((h: string) => <li>{h}</li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="education">
+    <div class="container">
+      <h2 class="heading">Education</h2>
+      {education.map((ed) => (
+        <div class="entry">
+          <h3>{ed.institution}</h3>
+          <h4>{ed.studyType}{ed.area ? ` — ${ed.area}` : ''}</h4>
+          <span class="dates">{formatDate(ed.startDate)} – {formatDate(ed.endDate)}</span>
+          {ed.courses && <p>{ed.courses.join(', ')}</p>}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="projects" class="alt">
+    <div class="container">
+      <h2 class="heading">Notable Projects</h2>
+      <div class="projects">
+        {projects.map((proj) => (
+          <div class="project">
+            <h3>{proj.url ? <a href={proj.url} target="_blank" rel="noopener noreferrer">{proj.name}</a> : proj.name}</h3>
+            <p>{proj.description}</p>
+            <ul class="tags">
+              {proj.keywords?.map((k: string) => <li>{k}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="container">
+      <h2 class="heading">Skills & Knowledge Areas</h2>
+      {skills.map((group) => (
+        <div class="skill-group">
+          <h3>{group.name}</h3>
+          <ul class="tags">
+            {group.keywords.map((k: string) => <li>{k}</li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <footer id="contact">
+    <p>Get in touch: <a href={`mailto:${basics.email}`}>{basics.email}</a></p>
+  </footer>
+</Layout>

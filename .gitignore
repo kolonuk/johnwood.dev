@@ -1,10 +1,6 @@
-# Composer dependencies
-/vendor/
-composer.lock
-composer.phar
-
-# src: build tooling and backup files, not part of the served site
-/src/node_modules/
+# Node / Astro
+/node_modules/
+/dist/
 *.bak
 
 # Environment variables
@@ -20,9 +16,6 @@ composer.phar
 # OS-specific files
 .DS_Store
 Thumbs.db
-
-# Ignore build artifacts
-/build/
 
 # IDE-specific files
 .vscode/
