@@ -68,6 +68,23 @@ h1, h2, h3, h4 {
   color: var(--text);
   text-decoration: none;
 }
+.btn-secondary {
+  display: inline-block;
+  margin-left: 0.75rem;
+  padding: 0.6rem 1.5rem;
+  color: #d7dde3;
+  font-weight: 600;
+  text-decoration: underline;
+}
+.btn-secondary:hover {
+  color: #fff;
+}
+@media (max-width: 600px) {
+  .btn-secondary {
+    display: block;
+    margin: 0.75rem 0 0;
+  }
+}
 
 /* Sections */
 section {
@@ -165,6 +182,18 @@ footer {
   padding: 3rem 1.5rem;
   color: var(--text-muted);
   font-size: 0.9rem;
+}
+footer .social {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 1rem;
+  margin: 1.25rem 0;
+  padding: 0;
+}
+footer .copyright {
+  margin-top: 1.5rem;
 }
 
 @media (max-width: 600px) {

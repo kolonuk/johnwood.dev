@@ -10,6 +10,7 @@ function formatDate(d?: string) {
 }
 
 const { basics, work, education, skills, projects } = resume;
+const ORIGINAL_CV_URL = 'https://docs.google.com/document/d/1wID5t6_KAN1R91pGA1RLLY8QA2c2-najZRC3Mm8ymMA/edit?usp=sharing';
 ---
 
 <Layout title={`${basics.name} — ${basics.label}`}>
@@ -17,6 +18,7 @@ const { basics, work, education, skills, projects } = resume;
     <h1>{basics.name}</h1>
     <h2>{basics.label}</h2>
     <a class="btn" href="resume.pdf">Download CV (PDF)</a>
+    <a class="btn-secondary" href={ORIGINAL_CV_URL} target="_blank" rel="noopener noreferrer">Original CV (Google Docs)</a>
   </header>
 
   <section id="about">
@@ -90,5 +92,11 @@ const { basics, work, education, skills, projects } = resume;
 
   <footer id="contact">
     <p>Get in touch: <a href={`mailto:${basics.email}`}>{basics.email}</a></p>
+    <ul class="social">
+      {basics.profiles.map((p) => (
+        <li><a href={p.url} target="_blank" rel="noopener noreferrer">{p.network}</a></li>
+      ))}
+    </ul>
+    <p class="copyright">© {new Date().getFullYear()} {basics.name}</p>
   </footer>
 </Layout>

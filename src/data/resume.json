@@ -10,9 +10,44 @@
     "summary": "I maintain my own server rack at home, providing free website and fileserver hosting for several community groups, including 1244 (Swindon) Squadron Air Training Corps, Wiltshire County Pool and Mazz's Disco. The rack also runs my personal media server and storage, test & development VMs/containers, and a duplicate backup stack. Outside of work I enjoy music (piano and ukulele), taking apart electronics, tinkering with opensource projects, walking, running, cycling, SUP and general outdoor adventures. I also volunteer with two local Air Cadet squadrons, training young people aged 12-20. I actively maintain a Docker image with over 500k pulls on DockerHub.",
     "profiles": [
       {
+        "network": "LinkedIn",
+        "username": "kolonuk",
+        "url": "https://www.linkedin.com/in/kolonuk"
+      },
+      {
+        "network": "GitHub",
+        "username": "kolonuk",
+        "url": "https://github.com/kolonuk"
+      },
+      {
         "network": "Docker Hub",
         "username": "kolonuk",
         "url": "https://hub.docker.com/u/kolonuk"
+      },
+      {
+        "network": "Bitbucket",
+        "username": "kolon",
+        "url": "https://bitbucket.org/kolon/"
+      },
+      {
+        "network": "Stack Exchange",
+        "username": "kolonuk",
+        "url": "https://stackexchange.com/users/4365035/kolonuk?tab=accounts"
+      },
+      {
+        "network": "Credly",
+        "username": "john-wood",
+        "url": "https://www.credly.com/users/john-wood.d3c46c8a/badges"
+      },
+      {
+        "network": "Facebook",
+        "username": "kolonuk",
+        "url": "https://www.facebook.com/kolonuk"
+      },
+      {
+        "network": "IMDb",
+        "username": "nm7698263",
+        "url": "https://www.imdb.com/name/nm7698263/"
       }
     ]
   },
