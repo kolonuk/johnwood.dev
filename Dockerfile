@@ -3,10 +3,10 @@
 # image).
 FROM node:22-alpine AS build
 
-# hadolint ignore=DL3018
 # Pinned Alpine package versions leave the current apk index on the next
 # base image update and break the build; apk add --no-cache already pulls
 # whatever is current and current gets rebuilt on every push anyway.
+# hadolint ignore=DL3018
 RUN apk add --no-cache chromium
 ENV CHROMIUM_PATH=/usr/bin/chromium-browser
 
