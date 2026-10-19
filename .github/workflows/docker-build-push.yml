@@ -162,3 +162,24 @@ jobs:
           # :latest moves with every build, so the newest version always
           # carries it and is inside the keep window above.
           ignore-versions-with-tags: 'latest'
+
+  trigger-dadock-deploy:
+    name: Reload the dadock stack
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      # DADOCK_DEPLOY_TOKEN is a fine-grained PAT scoped to Actions:write on
+      # kolonuk/dadock only — the default GITHUB_TOKEN can't dispatch
+      # workflows in another repo. dadock's own "1. Deploy docker stack"
+      # workflow does `docker compose pull --quiet && up -d` for the whole
+      # stack, which is a no-op for every service except the one whose image
+      # just changed (johnwood), so this just reloads that one container.
+      - name: Dispatch dadock deploy workflow
+        env:
+          GH_TOKEN: ${{ secrets.DADOCK_DEPLOY_TOKEN }}
+        run: |
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "DADOCK_DEPLOY_TOKEN not set - skipping dadock reload. Pull the new image manually." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          gh workflow run "1. Deploy docker stack" --repo kolonuk/dadock
