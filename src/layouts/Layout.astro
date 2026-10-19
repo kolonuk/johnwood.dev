@@ -4,9 +4,17 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description?: string;
+  // Relative prefix to this page's own directory, e.g. "../" one level
+  // down. Lets the same static build work whether it's served at the site
+  // root or behind a path-prefix proxy (no absolute "/" asset paths).
+  assetBase?: string;
 }
 
-const { title, description = "John Wood's CV — Software, Kubernetes & Systems Engineer." } = Astro.props;
+const {
+  title,
+  description = "John Wood's CV — Software, Kubernetes & Systems Engineer.",
+  assetBase = '',
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -14,7 +22,7 @@ const { title, description = "John Wood's CV — Software, Kubernetes & Systems 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href={`${assetBase}favicon.ico`} />
     <meta name="description" content={description} />
     <title>{title}</title>
   </head>

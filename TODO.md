@@ -16,27 +16,31 @@ down from 755 MB.
 
 ## Publishing
 
-### [P1] johnwood.dev does not yet resolve to the new home
-DNS lives in Cloudflare (zone `cbcb167f83363a3ee047318a5c1dee65`) but the
-registrar still delegates to `ns1/ns2.kolonsolutions.co.uk` on the old VPS,
-and the A record still points at `45.137.151.109`. Outstanding:
-
-- Flip the Spaceship nameservers to `dilbert`/`kenia.ns.cloudflare.com`.
-  Credentials are on the dadock host in `/srv/dadock/stack/.env` as
-  `SPACESHIP_API_KEY` / `SPACESHIP_API_SECRET`; the call is
-  `PUT https://spaceship.dev/api/v1/domains/johnwood.dev/nameservers`.
-- Stand up the Pangolin tunnel so traffic reaches the home server, and add
-  the `newt` client to the dadock stack.
-- Repoint the A record at the VPS once the tunnel is up.
+johnwood.dev is live (verified 2026-10-19) — published publicly via the
+Pangolin tunnel + VPS, `Host()`-routed to this container. dadock *also* keeps
+a LAN-only alias at `http://192.168.33.11/johnwood/` (`PathPrefix(/johnwood)`
++ `stripprefix`, homepage dashboard links to both) — that's a deliberate
+second route for local testing/access, not a stopgap waiting to be replaced.
+Both routes hit the same static build; all asset references in
+`src/` are relative (no leading `/`) specifically so one image serves
+correctly under either mount. Keep it that way — don't reintroduce
+root-absolute paths (`href="/x"`, `url('/x')`) without re-checking both
+routes still resolve (see the Docker-based check in git history around
+2026-10-19 for how to simulate the `/johnwood/` prefix locally).
 
 ### [P2] Decide whether the GHCR package stays private
 It is private today, and the dadock host pulls it because `bootstrap.sh` logs
 in to `ghcr.io` with `GH_PAT`. Either make the package public, or document the
 login as a hard prerequisite in the dadock setup notes.
 
-### [P3] The `/johnwood` path prefix is temporary
-Once the site is served at its own hostname, the `PathPrefix(/johnwood)` +
-`stripprefix` routing in dadock should become a `Host()` rule.
+### [P3] `add-slash` redirect leaks the backend port and wrong scheme
+`https://johnwood.dev/resume` (no trailing slash) 301s to
+`http://johnwood.dev:8080/resume/` — wrong scheme and the container's
+internal port, not `johnwood.dev`'s public one. That's dadock's shared
+`add-slash` redirectregex middleware reconstructing the URL from headers it's
+seeing through the Pangolin tunnel; worth checking `X-Forwarded-Proto`/`-Port`
+handling there since it likely affects every `PathPrefix` service, not just
+this one. Not a johnwood.dev-repo fix.
 
 ---
 

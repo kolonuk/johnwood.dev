@@ -12,8 +12,8 @@ function formatDate(d?: string) {
 const { basics, work, education, skills, certificates } = resume;
 ---
 
-<Layout title={`${basics.name} — CV`}>
-  <a class="no-print" href="/" style="display:block; text-align:center; padding:1rem;">← Back to site</a>
+<Layout title={`${basics.name} — CV`} assetBase="../">
+  <a class="no-print" href="../" style="display:block; text-align:center; padding:1rem;">← Back to site</a>
   <main class="cv-page">
     <h1>{basics.name}</h1>
     <p class="label">{basics.label}</p>
