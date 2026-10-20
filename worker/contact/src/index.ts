@@ -1,5 +1,8 @@
+import { WorkerMailer } from "worker-mailer";
+
 interface Env {
-	RESEND_API_KEY: string;
+	GMAIL_USERNAME: string;
+	GMAIL_APP_PASSWORD: string;
 	TURNSTILE_SECRET: string;
 }
 
@@ -47,34 +50,29 @@ export default {
 			return jsonResponse({ error: "message required (max 5000 chars)" }, 400);
 		}
 
-		let resendResponse: Response;
 		try {
-			resendResponse = await fetch("https://api.resend.com/emails", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${env.RESEND_API_KEY}`,
-					"Content-Type": "application/json",
+			await WorkerMailer.send(
+				{
+					host: "smtp.gmail.com",
+					port: 465,
+					secure: true,
+					credentials: {
+						username: env.GMAIL_USERNAME,
+						password: env.GMAIL_APP_PASSWORD,
+					},
+					authType: "plain",
 				},
-				signal: AbortSignal.timeout(10_000),
-				body: JSON.stringify({
-					// Resend's shared sandbox domain — fine here since the
-					// recipient is always the fixed, verified site owner
-					// address below, not an arbitrary visitor.
-					from: "johnwood.dev contact form <onboarding@resend.dev>",
-					to: "john@kolon.co.uk",
-					reply_to: fromEmail,
+				{
+					from: { name: "johnwood.dev contact form", email: env.GMAIL_USERNAME },
+					to: { email: "john@kolon.co.uk" },
+					reply: { email: fromEmail },
 					subject: "johnwood.dev contact form",
 					text: `From: ${fromEmail}\n\n${message}`,
 					html: `<p><strong>From:</strong> ${escapeHtml(fromEmail)}</p><p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>`,
-				}),
-			});
+				},
+			);
 		} catch (err) {
-			console.error("resend request failed", err);
-			return jsonResponse({ error: "failed to send - try again later" }, 502);
-		}
-
-		if (!resendResponse.ok) {
-			console.error("resend error", resendResponse.status, await resendResponse.text());
+			console.error("smtp send failed", err);
 			return jsonResponse({ error: "failed to send - try again later" }, 502);
 		}
 

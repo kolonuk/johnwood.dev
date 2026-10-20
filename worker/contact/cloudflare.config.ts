@@ -5,6 +5,8 @@ export default defineConfig({
 	worker: {
 		name: "johnwood-contact",
 		compatibilityDate: "2026-10-06",
+		// worker-mailer needs Node compat for its SMTP client.
+		compatibilityFlags: ["nodejs_compat"],
 		entrypoint,
 		triggers: [
 			triggers.fetch({
@@ -13,11 +15,12 @@ export default defineConfig({
 			}),
 		],
 		env: {
-			// Cloudflare's own send_email binding needs Workers Paid; this
-			// account is on Free. Resend's free tier sends the mail instead
-			// — recipient is always john@kolon.co.uk regardless of who
-			// filled the form, so no domain verification is required there.
-			RESEND_API_KEY: bindings.secret(),
+			// Cloudflare's own send_email binding needs Workers Paid (this
+			// account is on Free), so the Worker speaks SMTP directly to
+			// Gmail over a TCP socket instead — same relay the old PHP site
+			// used via msmtp, same app password, just called from here.
+			GMAIL_USERNAME: bindings.secret(),
+			GMAIL_APP_PASSWORD: bindings.secret(),
 			TURNSTILE_SECRET: bindings.secret(),
 		},
 	},
