@@ -1,9 +1,26 @@
 <?php
 declare(strict_types=1);
 
+// Fetch-based submits send Accept: application/json and get a JSON reply so
+// the frontend can show success/error inline. A plain HTML form POST (no
+// JS) falls back to this full response page.
+function wants_json(): bool
+{
+    return str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+}
+
 function render(string $title, string $body): never
 {
-    http_response_code($title === 'Message sent' ? 200 : 400);
+    $ok = $title === 'Message sent';
+    http_response_code($ok ? 200 : 400);
+
+    if (wants_json()) {
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => $ok, 'message' => $body]);
+        exit;
+    }
+
+    header('Content-Type: text/html; charset=UTF-8');
     echo <<<HTML
 <!doctype html>
 <html lang="en">
@@ -15,7 +32,7 @@ function render(string $title, string $body): never
 <body>
 <h1>{$title}</h1>
 <p>{$body}</p>
-<p><a href="/#contact">Back to johnwood.dev</a></p>
+<p><a href="./#contact">Back to johnwood.dev</a></p>
 </body>
 </html>
 HTML;

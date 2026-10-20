@@ -240,6 +240,17 @@ footer .copyright {
   height: 1px;
   overflow: hidden;
 }
+#contact-status {
+  margin: 0;
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+#contact-status.success {
+  color: #15803d;
+}
+#contact-status.error {
+  color: #b91c1c;
+}
 
 @media (max-width: 600px) {
   #hero h1 {
