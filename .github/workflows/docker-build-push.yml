@@ -15,6 +15,7 @@ on:
       - 'src/**'
       - 'public/**'
       - 'scripts/**'
+      - 'php/**'
       - 'package.json'
       - 'package-lock.json'
       - 'astro.config.mjs'
@@ -35,6 +36,22 @@ env:
   IMAGE_NAME: ${{ github.repository_owner }}/johnwood.dev
 
 jobs:
+  lint-php:
+    name: Lint PHP
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Syntax check (php -l)
+        run: find php -name "*.php" -exec php -l {} \;
+
   lint-dockerfile:
     name: Lint Dockerfile
     runs-on: ubuntu-24.04
@@ -64,7 +81,7 @@ jobs:
 
   build:
     name: Build, Scan and Push Image
-    needs: [lint-dockerfile, trivy-fs]
+    needs: [lint-php, lint-dockerfile, trivy-fs]
     runs-on: ubuntu-24.04
     permissions:
       contents: 'read'
@@ -110,6 +127,10 @@ jobs:
           [ "$code" = "200" ] || { echo "site did not return 200 (got $code)"; docker logs smoke; exit 1; }
           curl -sf http://localhost:18080/resume/ > /dev/null
           curl -sf -o /dev/null -w '%{content_type}\n' http://localhost:18080/resume.pdf | grep -q application/pdf
+          # No SMTP_USER set in this job, so contact.php can't send mail, but
+          # it should still be reachable and reject a GET.
+          contact_code="$(curl -s -o /dev/null -w '%{http_code}' http://localhost:18080/contact.php)"
+          [ "$contact_code" = "405" ] || { echo "contact.php GET did not 405 (got $contact_code)"; docker logs smoke; exit 1; }
           docker rm -f smoke
 
       - name: Scan image for vulnerabilities

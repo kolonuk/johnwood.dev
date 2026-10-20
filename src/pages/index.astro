@@ -91,8 +91,10 @@ const ORIGINAL_CV_URL = 'https://docs.google.com/document/d/1wID5t6_KAN1R91pGA1R
   </section>
 
   <footer id="contact">
+    <h2 class="heading">Contact</h2>
     <p>
-      Get in touch: <a id="contact-email" rel="nofollow">enable JavaScript to see email</a>
+      Get in touch by email: <a id="contact-email" rel="nofollow">enable JavaScript to see email</a>,
+      or use the form below:
     </p>
     <script define:vars={{ emailCodes: [...basics.email].map((c: string) => c.charCodeAt(0)) }}>
       const email = emailCodes.map((c) => String.fromCharCode(c)).join('');
@@ -100,6 +102,18 @@ const ORIGINAL_CV_URL = 'https://docs.google.com/document/d/1wID5t6_KAN1R91pGA1R
       a.href = `mailto:${email}`;
       a.textContent = email;
     </script>
+
+    <form id="contact-form" method="post" action="/contact.php">
+      <label for="from_email">Your email</label>
+      <input type="email" id="from_email" name="from_email" placeholder="you@example.com" required />
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="6" required></textarea>
+      <div class="hp-field" aria-hidden="true">
+        <label for="company">Company</label>
+        <input type="text" id="company" name="company" tabindex="-1" autocomplete="off" />
+      </div>
+      <button type="submit">Send</button>
+    </form>
     <ul class="social">
       {basics.profiles.map((p) => (
         <li><a href={p.url} target="_blank" rel="noopener noreferrer">{p.network}</a></li>

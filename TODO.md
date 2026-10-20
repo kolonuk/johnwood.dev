@@ -1,16 +1,25 @@
 # TODO — johnwood.dev
 
-Context as of 2026-10-19: the site was rewritten from the PHP/Apache resume
-page to a static Astro site (Markdown-free, content lives in
-`src/data/resume.json`). The contact form, msmtp relay and reCAPTCHA were
-dropped entirely — contact is a `mailto:` link. The image is built by
+Context as of 2026-10-20: the site was rewritten from the old 599-line
+PHP/Apache resume page to a static Astro site (content lives in
+`src/data/resume.json`). The contact form came back in a second pass: nginx
+serves the static site, php-fpm handles just `php/contact.php`, which sends
+mail via msmtp -> Gmail SMTP — same relay and app password the old site
+used, just a small dedicated script instead of the inline 599-line template.
+reCAPTCHA was dropped (its secret was already compromised in git history,
+and the service is being phased out) for a simple honeypot field instead. A
+Cloudflare Worker + Turnstile + Resend/Cloudflare-Email-Sending contact form
+was attempted first and abandoned before deploying anything — repeatedly
+blocked on plan/account constraints (Workers Paid, token permissions) each
+time the approach changed. The image is built by
 `.github/workflows/docker-build-push.yml`, published to
 `ghcr.io/kolonuk/johnwood.dev`, and pulled by the dadock compose stack.
 
-Previous TODO items about PHP warnings, the contact form, msmtp, jQuery,
-reCAPTCHA secrets and image-size-from-PHP-base no longer apply — that code is
-gone. New image is ~90 MB (`nginx-unprivileged:alpine` + static output),
-down from 755 MB.
+Previous TODO items about PHP warnings, jQuery, reCAPTCHA secrets and
+image-size-from-PHP-base no longer apply — that code is gone. Image is
+~137 MB (`php:8.2-fpm-alpine` + nginx, two processes in one container) —
+still well down from the original 755 MB, though bigger than the brief
+mailto-only, PHP-free ~90 MB version.
 
 ---
 

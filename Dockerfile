@@ -21,11 +21,27 @@ COPY scripts ./scripts
 
 RUN npm run build && npm run pdf
 
-# Serve stage: static files only, unprivileged nginx on 8080 (no root needed
-# to bind the port, same convention as the previous PHP image).
-FROM nginxinc/nginx-unprivileged:alpine AS serve
+# Serve stage: nginx serves the static Astro output; php-fpm handles just
+# /contact.php (mail() -> msmtp -> Gmail SMTP, same relay the original PHP
+# site used, same app password).
+FROM php:8.2-fpm-alpine AS serve
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# hadolint ignore=DL3018
+RUN apk add --no-cache nginx msmtp
+
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && echo 'sendmail_path = "/usr/bin/msmtp -C /var/www/msmtp/msmtprc -t"' \
+       > /usr/local/etc/php/conf.d/msmtp.ini \
+    && mkdir -p /var/www/msmtp && chown www-data:www-data /var/www/msmtp
+
+# Alpine's nginx package includes conf.d/*.conf at the root context and
+# http.d/*.conf inside the http{} block — our server block needs the latter.
+COPY nginx.conf /etc/nginx/http.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY php/contact.php /usr/share/nginx/html/contact.php
+COPY php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 8080
+
+ENTRYPOINT ["docker-entrypoint.sh"]
