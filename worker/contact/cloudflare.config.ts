@@ -13,15 +13,11 @@ export default defineConfig({
 			}),
 		],
 		env: {
-			// Destination is fixed and verified (Email Routing) — the binding
-			// can't be used to relay to any other address. Sends as
-			// john@kolon.co.uk (kolon.co.uk is already onboarded to Cloudflare,
-			// not johnwood.dev) — same address Email Routing already forwards
-			// to the Gmail inbox, so that forwarding rule is untouched.
-			EMAIL: bindings.sendEmail({
-				destinationAddress: "john@kolon.co.uk",
-				allowedSenderAddresses: ["john@kolon.co.uk"],
-			}),
+			// Cloudflare's own send_email binding needs Workers Paid; this
+			// account is on Free. Resend's free tier sends the mail instead
+			// — recipient is always john@kolon.co.uk regardless of who
+			// filled the form, so no domain verification is required there.
+			RESEND_API_KEY: bindings.secret(),
 			TURNSTILE_SECRET: bindings.secret(),
 		},
 	},

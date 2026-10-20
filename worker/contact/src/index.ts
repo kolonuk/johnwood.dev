@@ -1,5 +1,5 @@
 interface Env {
-	EMAIL: SendEmail;
+	RESEND_API_KEY: string;
 	TURNSTILE_SECRET: string;
 }
 
@@ -47,17 +47,34 @@ export default {
 			return jsonResponse({ error: "message required (max 5000 chars)" }, 400);
 		}
 
+		let resendResponse: Response;
 		try {
-			await env.EMAIL.send({
-				from: "john@kolon.co.uk",
-				to: "john@kolon.co.uk",
-				replyTo: fromEmail,
-				subject: "johnwood.dev contact form",
-				text: `From: ${fromEmail}\n\n${message}`,
-				html: `<p><strong>From:</strong> ${escapeHtml(fromEmail)}</p><p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>`,
+			resendResponse = await fetch("https://api.resend.com/emails", {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${env.RESEND_API_KEY}`,
+					"Content-Type": "application/json",
+				},
+				signal: AbortSignal.timeout(10_000),
+				body: JSON.stringify({
+					// Resend's shared sandbox domain — fine here since the
+					// recipient is always the fixed, verified site owner
+					// address below, not an arbitrary visitor.
+					from: "johnwood.dev contact form <onboarding@resend.dev>",
+					to: "john@kolon.co.uk",
+					reply_to: fromEmail,
+					subject: "johnwood.dev contact form",
+					text: `From: ${fromEmail}\n\n${message}`,
+					html: `<p><strong>From:</strong> ${escapeHtml(fromEmail)}</p><p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>`,
+				}),
 			});
 		} catch (err) {
-			console.error("email send failed", err);
+			console.error("resend request failed", err);
+			return jsonResponse({ error: "failed to send - try again later" }, 502);
+		}
+
+		if (!resendResponse.ok) {
+			console.error("resend error", resendResponse.status, await resendResponse.text());
 			return jsonResponse({ error: "failed to send - try again later" }, 502);
 		}
 
