@@ -91,7 +91,15 @@ const ORIGINAL_CV_URL = 'https://docs.google.com/document/d/1wID5t6_KAN1R91pGA1R
   </section>
 
   <footer id="contact">
-    <p>Get in touch: <a href={`mailto:${basics.email}`}>{basics.email}</a></p>
+    <p>
+      Get in touch: <a id="contact-email" rel="nofollow">enable JavaScript to see email</a>
+    </p>
+    <script define:vars={{ emailCodes: [...basics.email].map((c: string) => c.charCodeAt(0)) }}>
+      const email = emailCodes.map((c) => String.fromCharCode(c)).join('');
+      const a = document.getElementById('contact-email');
+      a.href = `mailto:${email}`;
+      a.textContent = email;
+    </script>
     <ul class="social">
       {basics.profiles.map((p) => (
         <li><a href={p.url} target="_blank" rel="noopener noreferrer">{p.network}</a></li>
