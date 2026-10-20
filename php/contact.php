@@ -9,10 +9,10 @@ function wants_json(): bool
     return str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
 }
 
-function render(string $title, string $body): never
+function render(string $title, string $body, int $status = 400): never
 {
     $ok = $title === 'Message sent';
-    http_response_code($ok ? 200 : 400);
+    http_response_code($ok ? 200 : $status);
 
     if (wants_json()) {
         header('Content-Type: application/json');
@@ -39,10 +39,86 @@ HTML;
     exit;
 }
 
+function client_ip(): string
+{
+    // Traefik sits in front of this container and sets X-Forwarded-For;
+    // REMOTE_ADDR alone would just be Traefik's own address.
+    $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+    if ($forwarded !== '') {
+        return trim(explode(',', $forwarded)[0]);
+    }
+    return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+}
+
+const RATE_LIMIT_FILE = '/var/www/ratelimit/contacts.csv';
+const RATE_LIMIT_SECONDS = 60;
+
+// Loads the file, drops any entry older than RATE_LIMIT_SECONDS, and writes
+// the pruned result back — called on every request so the file never grows
+// and never holds anything stale, not just after a successful send.
+function prune_rate_limit(mixed $fh): array
+{
+    $now = time();
+    $kept = [];
+    rewind($fh);
+    while (($line = fgets($fh)) !== false) {
+        $line = trim($line);
+        if ($line === '') {
+            continue;
+        }
+        [$ip, $timestamp] = array_pad(explode(',', $line, 2), 2, '0');
+        if ($now - (int) $timestamp < RATE_LIMIT_SECONDS) {
+            $kept[] = [$ip, (int) $timestamp];
+        }
+    }
+    rewind($fh);
+    ftruncate($fh, 0);
+    foreach ($kept as [$ip, $timestamp]) {
+        fwrite($fh, "{$ip},{$timestamp}\n");
+    }
+    fflush($fh);
+    return $kept;
+}
+
+function rate_limited(string $ip): bool
+{
+    $fh = @fopen(RATE_LIMIT_FILE, 'c+');
+    if ($fh === false) {
+        return false; // fail open — a filesystem hiccup shouldn't block real senders
+    }
+    flock($fh, LOCK_EX);
+    $kept = prune_rate_limit($fh);
+    flock($fh, LOCK_UN);
+    fclose($fh);
+
+    foreach ($kept as [$entryIp]) {
+        if ($entryIp === $ip) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function record_send(string $ip): void
+{
+    $fh = @fopen(RATE_LIMIT_FILE, 'c+');
+    if ($fh === false) {
+        return;
+    }
+    flock($fh, LOCK_EX);
+    prune_rate_limit($fh);
+    fwrite($fh, $ip . ',' . time() . "\n");
+    fflush($fh);
+    flock($fh, LOCK_UN);
+    fclose($fh);
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     exit;
 }
+
+$clientIp = client_ip();
 
 // Honeypot: a field no real visitor sees or fills in (hidden via CSS, not
 // `type=hidden`, since bots skip genuinely hidden inputs less reliably).
@@ -50,6 +126,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // without sending mail, so the bot gets no signal its submission failed.
 if (($_POST['company'] ?? '') !== '') {
     render('Message sent', 'Thanks for getting in touch.');
+}
+
+if (rate_limited($clientIp)) {
+    render('Slow down', 'Only one message per minute, please — try again shortly.', 429);
 }
 
 // Visible challenge, same idea as the original site's "type human" field.
@@ -69,7 +149,7 @@ if ($turnstileSecret !== false && $turnstileSecret !== '') {
         CURLOPT_POSTFIELDS => http_build_query([
             'secret' => $turnstileSecret,
             'response' => $token,
-            'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+            'remoteip' => $clientIp,
         ]),
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 5,
@@ -98,6 +178,7 @@ $body = "From: {$fromEmail}\n\n{$message}";
 $headers = "Reply-To: {$fromEmail}\r\nContent-Type: text/plain; charset=UTF-8";
 
 if (mail($to, $subject, $body, $headers)) {
+    record_send($clientIp);
     render('Message sent', 'Thanks for getting in touch — I\'ll reply as soon as I can.');
 }
 

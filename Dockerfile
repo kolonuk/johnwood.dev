@@ -32,7 +32,8 @@ RUN apk add --no-cache nginx msmtp
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     && echo 'sendmail_path = "/usr/bin/msmtp -C /var/www/msmtp/msmtprc -t"' \
        > /usr/local/etc/php/conf.d/msmtp.ini \
-    && mkdir -p /var/www/msmtp && chown www-data:www-data /var/www/msmtp
+    && mkdir -p /var/www/msmtp /var/www/ratelimit \
+    && chown www-data:www-data /var/www/msmtp /var/www/ratelimit
 
 # Alpine's nginx package includes conf.d/*.conf at the root context and
 # http.d/*.conf inside the http{} block — our server block needs the latter.
