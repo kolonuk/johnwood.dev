@@ -21,3 +21,4 @@ Thumbs.db
 .vscode/
 .history
 .dual-graph/
+worker/.wrangler/
