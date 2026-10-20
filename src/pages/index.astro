@@ -112,8 +112,12 @@ const ORIGINAL_CV_URL = 'https://docs.google.com/document/d/1wID5t6_KAN1R91pGA1R
         <label for="company">Company</label>
         <input type="text" id="company" name="company" tabindex="-1" autocomplete="off" />
       </div>
+      <label for="uniquecapture">Type "human" to prove you're not a bot</label>
+      <input type="text" id="uniquecapture" name="uniquecapture" autocomplete="off" required />
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAFeUl_N2ssXmfGCi"></div>
       <button type="submit">Send</button>
     </form>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <ul class="social">
       {basics.profiles.map((p) => (
         <li><a href={p.url} target="_blank" rel="noopener noreferrer">{p.network}</a></li>

@@ -35,6 +35,36 @@ if (($_POST['company'] ?? '') !== '') {
     render('Message sent', 'Thanks for getting in touch.');
 }
 
+// Visible challenge, same idea as the original site's "type human" field.
+if (strtolower(trim((string) ($_POST['uniquecapture'] ?? ''))) !== 'human') {
+    render('Capture failed', 'Type "human" in the capture field and try again.');
+}
+
+$turnstileSecret = getenv('TURNSTILE_SECRET');
+if ($turnstileSecret !== false && $turnstileSecret !== '') {
+    $token = (string) ($_POST['cf-turnstile-response'] ?? '');
+    if ($token === '') {
+        render('Capture failed', 'Complete the Turnstile check and try again.');
+    }
+    $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => http_build_query([
+            'secret' => $turnstileSecret,
+            'response' => $token,
+            'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+        ]),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 5,
+    ]);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    $verified = is_string($result) ? json_decode($result, true) : null;
+    if (!is_array($verified) || ($verified['success'] ?? false) !== true) {
+        render('Capture failed', 'The Turnstile check did not pass — try again.');
+    }
+}
+
 $fromEmail = trim((string) ($_POST['from_email'] ?? ''));
 $message = trim((string) ($_POST['message'] ?? ''));
 
