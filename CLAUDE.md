@@ -1,3 +1,32 @@
+# Project notes
+
+## This site is served from two different mount points — never use absolute paths
+
+- Production: `https://johnwood.dev/` (domain root)
+- LAN: `http://192.168.33.11/johnwood/` (dadock's `PathPrefix(/johnwood)` + `stripprefix`)
+
+Both routes hit the exact same static build. Any `href`/`action`/CSS `url()`
+starting with `/` only resolves correctly at the root — it 404s under the
+`/johnwood/` prefix, since the browser resolves it against the domain root,
+not the current page. This has broken the site under the LAN route multiple
+times already (favicon, `resume.pdf` link, hero background image, the
+contact form's `action` and its PHP back-link) — always the same bug,
+always from a reintroduced leading `/`.
+
+**Rule:** every internal reference must be relative (`contact.php`,
+`favicon.ico`, `images/lead-bg.jpg`, `./#contact` from `/contact.php`, which
+sits one level "deeper" than the pages linking to it) — never `/contact.php`
+or `/#contact`. Before shipping any change that adds a path, verify both
+mounts:
+
+```sh
+docker build -t jw-test . && docker run -d --name jw-test -p 18090:8080 jw-test
+curl -s http://localhost:18090/ | grep -o 'href="[^"]*"\|action="[^"]*"\|url([^)]*)'
+# then simulate the prefix: proxy_pass /johnwood/ -> http://localhost:18090/
+# in a throwaway nginx:alpine container and repeat the check through it.
+docker rm -f jw-test
+```
+
 <!-- dgc-policy-v11 -->
 # Dual-Graph Context Policy
 
