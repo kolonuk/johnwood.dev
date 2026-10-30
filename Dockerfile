@@ -27,7 +27,7 @@ RUN npm run build && npm run pdf
 FROM php:8.2-fpm-alpine AS serve
 
 # hadolint ignore=DL3018
-RUN apk add --no-cache nginx msmtp
+RUN apk upgrade --no-cache && apk add --no-cache nginx msmtp
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     && echo 'sendmail_path = "/usr/bin/msmtp -C /var/www/msmtp/msmtprc -t"' \
