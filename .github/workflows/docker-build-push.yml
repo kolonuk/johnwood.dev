@@ -90,8 +90,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      # dadock pins images by an immutable prod-<short sha> tag (same
-      # convention as the daclusta-docs image), with :latest as a convenience.
+      # dadock's reconciler pins the immutable main-<sha12> tag; there is no
+      # :latest or rolling tag.
       - name: Compute image tags
         id: meta
         run: |
@@ -99,7 +99,7 @@ jobs:
           IMAGE_BASE="${REGISTRY}/${IMAGE_NAME}"
           echo "short_sha=${SHORT_SHA}"                      >> "$GITHUB_OUTPUT"
           echo "image_base=${IMAGE_BASE}"                    >> "$GITHUB_OUTPUT"
-          echo "image_ref=${IMAGE_BASE}:prod-${SHORT_SHA}"   >> "$GITHUB_OUTPUT"
+          echo "image_ref=${IMAGE_BASE}:main-${SHORT_SHA}"   >> "$GITHUB_OUTPUT"
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
@@ -158,49 +158,8 @@ jobs:
           push: true
           tags: |
             ${{ steps.meta.outputs.image_ref }}
-            ${{ steps.meta.outputs.image_base }}:latest
           cache-from: type=gha
 
       - name: Summary
         run: |
           echo "Pushed \`${{ steps.meta.outputs.image_ref }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Update dadock \`docker-compose.yml\` to pin this tag." >> "$GITHUB_STEP_SUMMARY"
-
-  cleanup-images:
-    name: Clean up old container images
-    needs: build
-    runs-on: ubuntu-24.04
-    permissions:
-      packages: 'write'
-    steps:
-      - name: Delete all but the 5 most recent versions
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: 'johnwood.dev'
-          package-type: 'container'
-          min-versions-to-keep: 5
-          # :latest moves with every build, so the newest version always
-          # carries it and is inside the keep window above.
-          ignore-versions-with-tags: 'latest'
-
-  trigger-dadock-deploy:
-    name: Reload the dadock stack
-    needs: build
-    runs-on: ubuntu-24.04
-    steps:
-      # DADOCK_DEPLOY_TOKEN is a fine-grained PAT scoped to Actions:write on
-      # kolonuk/dadock only — the default GITHUB_TOKEN can't dispatch
-      # workflows in another repo. dadock's own "1. Deploy docker stack"
-      # workflow does `docker compose pull --quiet && up -d` for the whole
-      # stack, which is a no-op for every service except the one whose image
-      # just changed (johnwood), so this just reloads that one container.
-      - name: Dispatch dadock deploy workflow
-        env:
-          GH_TOKEN: ${{ secrets.DADOCK_DEPLOY_TOKEN }}
-        run: |
-          if [ -z "${GH_TOKEN:-}" ]; then
-            echo "DADOCK_DEPLOY_TOKEN not set - skipping dadock reload. Pull the new image manually." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          gh workflow run "1. Deploy docker stack" --repo kolonuk/dadock
