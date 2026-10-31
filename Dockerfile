@@ -1,7 +1,7 @@
 # Build stage: compile the Astro site to static HTML, then render the CV
 # page to a PDF with Chromium (installed here only, not shipped in the final
 # image).
-FROM node:22-alpine AS build
+FROM node:25-alpine AS build
 
 # Pinned Alpine package versions leave the current apk index on the next
 # base image update and break the build; apk add --no-cache already pulls
@@ -24,7 +24,7 @@ RUN npm run build && npm run pdf
 # Serve stage: nginx serves the static Astro output; php-fpm handles just
 # /contact.php (mail() -> msmtp -> Gmail SMTP, same relay the original PHP
 # site used, same app password).
-FROM php:8.2-fpm-alpine AS serve
+FROM php:8.5-fpm-alpine AS serve
 
 # hadolint ignore=DL3018
 RUN apk upgrade --no-cache && apk add --no-cache nginx msmtp
