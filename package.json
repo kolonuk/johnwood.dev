@@ -12,9 +12,9 @@
     "node": ">=22.22.0"
   },
   "dependencies": {
-    "astro": "^7.4.1"
+    "astro": "^7.4.2"
   },
   "devDependencies": {
-    "puppeteer-core": "^25.14.0"
+    "puppeteer-core": "^25.16.0"
   }
 }
