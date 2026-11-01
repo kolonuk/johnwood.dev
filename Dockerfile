@@ -1,7 +1,7 @@
 # Build stage: compile the Astro site to static HTML, then render the CV
 # page to a PDF with Chromium (installed here only, not shipped in the final
 # image).
-FROM node:24-alpine AS build
+FROM node:26-alpine AS build
 
 # Pinned Alpine package versions leave the current apk index on the next
 # base image update and break the build; apk add --no-cache already pulls
