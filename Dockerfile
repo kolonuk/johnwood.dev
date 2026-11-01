@@ -46,7 +46,8 @@ COPY php/contact.php /usr/share/nginx/html/contact.php
 COPY php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-USER www-data
+# 82 = www-data in the php alpine image (hadolint wants a numeric uid).
+USER 82
 EXPOSE 8080
 
 # The php base image sets STOPSIGNAL SIGQUIT; the entrypoint supervises both
@@ -54,6 +55,6 @@ EXPOSE 8080
 STOPSIGNAL SIGTERM
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1
+    CMD ["wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
 
 ENTRYPOINT ["docker-entrypoint.sh"]
