@@ -16,12 +16,30 @@ on:
       - 'public/**'
       - 'scripts/**'
       - 'php/**'
+      - 'docker/**'
       - 'package.json'
       - 'package-lock.json'
       - 'astro.config.mjs'
       - 'tsconfig.json'
       - 'Dockerfile'
       - 'nginx.conf'
+      - '.dockerignore'
+      - '.github/workflows/docker-build-push.yml'
+  # PRs run every check and build the image, but never push it.
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'scripts/**'
+      - 'php/**'
+      - 'docker/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'astro.config.mjs'
+      - 'tsconfig.json'
+      - 'Dockerfile'
+      - 'nginx.conf'
+      - '.dockerignore'
       - '.github/workflows/docker-build-push.yml'
 
 concurrency:
@@ -39,6 +57,7 @@ jobs:
   lint-php:
     name: Lint PHP
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
@@ -46,7 +65,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
-          php-version: '8.2'
+          php-version: '8.5'
           coverage: none
 
       - name: Syntax check (php -l)
@@ -55,6 +74,7 @@ jobs:
   lint-dockerfile:
     name: Lint Dockerfile
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
@@ -67,6 +87,7 @@ jobs:
   trivy-fs:
     name: Scan source for vulnerabilities (Trivy FS)
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
@@ -83,6 +104,7 @@ jobs:
     name: Build, Scan and Push Image
     needs: [lint-php, lint-dockerfile, trivy-fs]
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: 'read'
       packages: 'write'
@@ -118,8 +140,9 @@ jobs:
 
       - name: Smoke test
         run: |
+          trap 'docker rm -f smoke >/dev/null 2>&1 || true' EXIT
           docker run -d --name smoke -p 18080:8080 "${{ steps.meta.outputs.image_ref }}"
-          for i in $(seq 1 10); do
+          for i in $(seq 1 15); do
             code="$(curl -s -o /dev/null -w '%{http_code}' http://localhost:18080/ || true)"
             [ "$code" = "200" ] && break
             sleep 1
@@ -127,11 +150,36 @@ jobs:
           [ "$code" = "200" ] || { echo "site did not return 200 (got $code)"; docker logs smoke; exit 1; }
           curl -sf http://localhost:18080/resume/ > /dev/null
           curl -sf -o /dev/null -w '%{content_type}\n' http://localhost:18080/resume.pdf | grep -q application/pdf
-          # No SMTP_USER set in this job, so contact.php can't send mail, but
-          # it should still be reachable and reject a GET.
-          contact_code="$(curl -s -o /dev/null -w '%{http_code}' http://localhost:18080/contact.php)"
-          [ "$contact_code" = "405" ] || { echo "contact.php GET did not 405 (got $contact_code)"; docker logs smoke; exit 1; }
-          docker rm -f smoke
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:18080/no-such-page)" = "404" ]
+
+          # The site is served at the domain root AND under a /johnwood/ path
+          # prefix (see CLAUDE.md), so no internal reference may start with
+          # a single "/".
+          for page in / /resume/; do
+            if curl -s "http://localhost:18080${page}" | grep -E '(href|src|action)="/[^/]|url\(/[^/]'; then
+              echo "absolute internal path on ${page} - breaks the path-prefixed mount"; exit 1
+            fi
+          done
+
+          # Container hardening: not root, FastCGI not reachable beyond loopback.
+          [ "$(docker exec smoke id -u)" != "0" ] || { echo "container runs as root"; exit 1; }
+          docker exec smoke netstat -ltn | grep ':9000' | grep -q '127.0.0.1:9000' \
+            || { echo "php-fpm is not bound to loopback only"; exit 1; }
+
+          # contact.php: GET is rejected; POSTs run through the honeypot and
+          # type-human checks (TURNSTILE_SECRET and SMTP are unset in CI, so
+          # the Turnstile and mail branches are not exercised).
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:18080/contact.php)" = "405" ] \
+            || { echo "contact.php GET did not 405"; docker logs smoke; exit 1; }
+          [ "$(curl -s -o /dev/null -w '%{http_code}' -d 'company=bot' http://localhost:18080/contact.php)" = "200" ] \
+            || { echo "honeypot POST did not 200"; docker logs smoke; exit 1; }
+          [ "$(curl -s -o /dev/null -w '%{http_code}' -d 'uniquecapture=wrong' http://localhost:18080/contact.php)" = "400" ] \
+            || { echo "wrong-capture POST did not 400"; docker logs smoke; exit 1; }
+
+          # Graceful shutdown: SIGTERM must stop both daemons promptly.
+          start="$(date +%s)"
+          docker stop smoke > /dev/null
+          [ "$(( $(date +%s) - start ))" -lt 8 ] || { echo "docker stop was slow (SIGKILLed?)"; exit 1; }
 
       - name: Scan image for vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -144,22 +192,20 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Log in to GHCR
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Push the very image that was smoke-tested and scanned above, rather
+      # than rebuilding it.
       - name: Push
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          tags: |
-            ${{ steps.meta.outputs.image_ref }}
-          cache-from: type=gha
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: docker push "${{ steps.meta.outputs.image_ref }}"
 
       - name: Summary
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
           echo "Pushed \`${{ steps.meta.outputs.image_ref }}\`" >> "$GITHUB_STEP_SUMMARY"
